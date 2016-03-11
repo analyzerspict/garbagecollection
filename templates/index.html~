@@ -1,0 +1,6 @@
+<h1>Persistent</h1>
+
+<form method='POST' action='/'>
+<input type="text" name="string"/>
+<input type="submit" />
+</form>

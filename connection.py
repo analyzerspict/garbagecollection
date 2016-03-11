@@ -1,34 +1,86 @@
 from pymongo import MongoClient
+import pymongo
 
-CONNECTION_STRING = "mongodb://suraj29:pict123@ds033175.mongolab.com:33175/arduino-db"
+#database is set up
+def database_setup():
 
-DATABASE_NAME = "arduino-db"
+    client = MongoClient("mongodb://suraj29:pict123@ds033175.mongolab.com:33175/arduino-db")
+    print client
 
-GARBAGE_CANS_COLLECTION = "garbage-cans"
+    db = client['arduino-db']
+    print db
+
+    return db
 
 
-class Database:
-    def __init__(self,connection_string):
-        self.mongoclient = MongoClient(connection_string)
+#here user authentication is done and then rendered
+def get_auth_details(db):
+	auth=db.collection_AUTH
+	document=auth.find().sort([("_id",pymongo.DESCENDING)]).limit(1)
+	for doc in document:
+		return [doc['username'],doc['password']]	
 
-    def connect_to_database(self,database_name):
-        self.database = self.mongoclient[database_name]
 
-    def connect_to_collection(self,collection_name):
-        self.collection = self.database[collection_name]
+
+
+
+
+#document is inserted in MONGOLAB .it is received from /
+def insert__sensor_document(s,db):
+    garbageCollection = db.garbage
+    
+    #print 'db-connected'
+    doc = s
+    
+
+    garbage_id = garbageCollection.insert_one(doc).inserted_id
+
+    return garbage_id
+
+
+
+
+#final sequence is received from the server of the path to be followed and is inserted in the database  .Its received from /tsp/areaid
+def insert_sequence_document(sequence,db):
+	
+	sequence_path=db.collection_sequence
+	doc=sequence
+	
+	a=sequence_path.insert_one(doc).inserted_id
+	
+	
+	return a
+
+
+
+
+#document is fetched based  in descending order of the timestamp and fed to brute.py
+def get_document(areaid,db,canid):
+	garbageCollection=db.garbage
+	
+	document=garbageCollection.find({"areaid":int(areaid) ,"canid":int(canid)}).sort([("timestamp",pymongo.DESCENDING)]).limit(1)
+	for doc in document:
+		return doc['level']
+	
+
+
+
+
+
+#javascript browser client will get the sequence to be mapped   .request is received from  /sequence
+def get_sequence(db):
+	sequence=db.collection_sequence
+	
+	document=sequence.find().sort([("_id",pymongo.DESCENDING)]).limit(1)
+	
+	for doc in document:
+		return str(doc['sequence'])
+	
 
 
 
 if __name__ == '__main__':
-    d = Database(CONNECTION_STRING)
-    d.connect_to_database(DATABASE_NAME)
-    d.connect_to_collection(GARBAGE_CANS_COLLECTION)
-
-    #print d.collection.insert_one({'canid':2,'level':15,'areaid':001,'location':{'xcord':43.73,'ycord':59.88}}).inserted_id
+   db = database_setup()
+   print insert_document("50",db)
 
 
- #   d.collection.insert_many([{'canid':3,'level':6,'areaid':001,'location':{'xcord':45.55,'ycord':67.77}},{'canid':4,'level':9,'areaid':001,'location':{'xcord':65.73,'ycord':90.88}},{'canid':5,'level':7,'areaid':001,'location':{'xcord':55.73,'ycord':60.88}}])
-
-
-    for doc in d.collection.find():
-        print doc
