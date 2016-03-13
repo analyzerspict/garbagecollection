@@ -11,7 +11,7 @@ import brute
 
 
 
-app = Flask(__name__,static_folder='/templates',static_url_path='/templates/static')
+app = Flask(__name__)
 
 GoogleMaps(app)
 a = '' 	#just used to give a name to the database and pass it as a parameter
@@ -24,10 +24,27 @@ B='success'
 @app.route('/',methods=['GET','POST'])
 def view_homepage():
 	if request.method=='GET':
-		return (render_template('/static/index.html'))
+		return (render_template('index.html'))
+	
+#login page gets loaded		
+@app.route('/Loginpage',methods=['GET','POST'])
+def view_Loginpage():
+	return (render_template('Loginpage.html'))
+			
 		
-		
-		
+
+#sign up  page gets loaded		
+@app.route('/SignUpPage',methods=['GET','POST'])
+def view_SignUpPage():
+	return (render_template('SignUpPage.html'))
+
+
+
+#dashboard  page gets loaded		
+@app.route('/Analyzers/Dashboard',methods=['GET','POST'])
+def view_Dashboard():
+	return (render_template('Dashboard.html'))
+
 		
 		
 #login activity
@@ -36,12 +53,19 @@ def login_auth():
 	error=None
 	if request.method=='POST':
 		usr ,passwd= connection.get_auth_details(a)
-		if request.form['username']!=str(usr) or request.form['password']!=str(passwd):
+		print usr , '       ' , passwd
+		if request.form['username']!=str(usr) and request.form['password']!=str(passwd):
 			error="Invalid credentials.Please try again"
+			
 		else:
-			return render_template('/static/Dashboard.html')
+			print 'success'
+			return redirect(url_for('view_Dashboard'))
+	return redirect(url_for('view_Loginpage',error=error))
+			
+			
+			
 
-	return render_template('/static/Loginpage.html',error=error)
+	
 
 
 
