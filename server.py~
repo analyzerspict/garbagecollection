@@ -2,8 +2,6 @@ from flask import Flask,request,render_template,redirect,url_for
 import  json
 import connection
 import pymongo
-from flask_googlemaps import GoogleMaps
-from flask_googlemaps import Map
 import distancematrix
 import brute
 
@@ -13,7 +11,6 @@ import brute
 
 app = Flask(__name__)
 
-GoogleMaps(app)
 a = '' 	#just used to give a name to the database and pass it as a parameter
 
 B='success'
